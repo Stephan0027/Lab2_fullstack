@@ -9,6 +9,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon index.js"
+    "start": "nodemon index.js",
+    "setup": "npm init && npm install body-parser dotenv express mongoose node nodemon"
   }
 }
