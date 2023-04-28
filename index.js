@@ -2,7 +2,11 @@ const express = require('express')
 const path = require('path');
 const mongoose = require('mongoose')
 const bodyPaser = require('body-parser')
+const cors = require('cors')
 require('dotenv').config()
+
+
+
 
 const Album = require('./Models/Album')
 const port = process.env.PORT || 3000
@@ -18,6 +22,10 @@ app.use(express.json())
 app.use(bodyPaser.json())
 app.use(bodyPaser.urlencoded({ extended: true }));
 app.use('/js', express.static(path.join(__dirname, 'js')));
+
+app.use(cors({
+  origin: "*",
+}))
 
 // mainpage
 app.get('/', function (req, res) {
