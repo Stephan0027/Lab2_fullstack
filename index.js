@@ -79,8 +79,8 @@ app.post('/albums', async (req, res) => {
 
   try {
     const album = await newAlbum.save()
-    res.status(201);
-
+    console.log("Data added")
+    res.status(200).json({ message: "succes" })
   } catch (error) {
     res.status(500).json({ message: "error in adding new album" })
   }
@@ -92,6 +92,7 @@ app.delete('/albums/:id', async (req, res) => {
 
   Album.deleteOne({ "_id": albumId }).then(function () {
     console.log("Data deleted")
+    res.status(200).json({ message: "succes" })
   }).catch(function (error) {
     res.status(404).json({ message: "Album could not be deleted" })
   });
@@ -111,6 +112,7 @@ app.post('/albums/:id', async (req, res) => {
 
   Album.updateOne(filter, update).then(function () {
     console.log("Data updated")
+    res.status(200).json({ message: "succes" })
   }).catch(function (error) {
     res.status(404).json({ message: "Album could not be updated" })
   });

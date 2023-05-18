@@ -1,6 +1,6 @@
 
 async function showAlbums() {
-  let data = await (await (fetch("http://localhost:3000/albums"))).json();
+  let data = await (await (fetch("/albums"))).json();
   let albums = data["data"]
   console.log(albums)
 
@@ -16,6 +16,7 @@ async function showAlbums() {
 
   for (let i = 0; i < albums.length; i++) {
     console.log(albums[i].title)
+    let html_title = albums[i].title.replace("_", " ");
     html += `
     <tr>
     <td><input type="text" id="t_${albums[i]._id}" value = "${albums[i].title}"></input></td>
@@ -24,7 +25,7 @@ async function showAlbums() {
     <td>
     <button type="button" id="d_${albums[i]._id}">Delete</button>
     <button type="button" id="u_${albums[i]._id}">Update</button>
-    
+    <a href="/albums/${html_title}">json</a>
     </td>
     </tr>
     `
@@ -51,34 +52,41 @@ async function showAlbums() {
   }
 }
 
+//check album details
+function checkAlbum(artist, title, year) {
+  validInfo = true
+  //check input
+  let yearnr = Number(year);
+  if ((Number.isNaN(yearnr)) || (year.length != 4)) {
+    validInfo = false
+  }
+
+  if (artist.length == 0) {
+    validInfo = false
+  }
+  if (title.length == 0) {
+    validInfo = false
+  }
+
+  return validInfo
+}
+
 //update Album
-function updateAlbum(id) {
+async function updateAlbum(id) {
   let artist = document.getElementById("a_" + id).value
   let title = document.getElementById("t_" + id).value
   let year = document.getElementById("y_" + id).value
   console.log(artist, title, year);
-  let checkAlbum = true
 
-  //make json string
-  let json_text = '{"artist":"' + artist + '","title":"' + title + '","year":"' + year + '"}'
-  console.log(json_text)
-
-  //check input
-  let yearnr = Number(year);
-  if ((Number.isNaN(yearnr)) || (year.length != 4)) {
-    checkAlbum = false
-  }
-
-  if (artist.length == 0) {
-    checkAlbum = false
-  }
-  if (title.length == 0) {
-    checkAlbum = false
-  }
+  let validInfo = await checkAlbum(artist, title, year)
 
   //post to database
-  if (checkAlbum) {
-    const response = fetch(`http://localhost:3000/albums/${id}`, {
+  if (validInfo) {
+    //make json string
+    let json_text = '{"artist":"' + artist + '","title":"' + title + '","year":"' + year + '"}'
+    console.log(json_text)
+
+    const response = await fetch(`/albums/${id}`, {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -86,17 +94,25 @@ function updateAlbum(id) {
       },
       body: json_text
     });
+
+    if (response.status === 200) {
+      console.log("succes")
+      showAlbums();
+    } else {
+      console.log("something went wrong")
+    }
   }
   else {
+    console.log("album details incorrect")
   }
 
 }
 
-function deleteAlbum(id) {
-  console.log(id);
+//delete Album
+async function deleteAlbum(id) {
   let json_text = `{"_id":"${id}"}`
 
-  const response = fetch(`http://localhost:3000/albums/${id}`, {
+  const response = await fetch(`/albums/${id}`, {
     method: 'DELETE',
     headers: {
       'Accept': 'application/json',
@@ -104,9 +120,60 @@ function deleteAlbum(id) {
     },
     body: json_text
   });
+
+  if (response.status === 200) {
+    console.log("succes")
+    showAlbums();
+  } else {
+    console.log("something went wrong")
+  }
+}
+
+async function createAlbum() {
+  console.log("ADD album")
+  let artist = artistText.value
+  let title = titleText.value
+  let year = yearNumber.value
+  let validInfo = await checkAlbum(artist, title, year)
+
+  //post to database
+  if (validInfo) {
+    //make json string
+    let json_text = '{"artist":"' + artist + '","title":"' + title + '","year":"' + year + '"}'
+    console.log(json_text)
+
+    const response = await fetch('/albums', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: json_text
+    });
+    console.log("jaasd")
+
+    console.log(response.status)
+    if (response.status == 200) {
+      console.log("succes")
+      document.getElementById("artistText").value = ""
+      document.getElementById("titleText").value = ""
+      document.getElementById("yearNumber").value = NaN
+
+      showAlbums();
+    } else {
+      console.log("something went wrong")
+    }
+
+  }
+  else {
+    console.log("album details incorrect")
+  }
 }
 
 //add album with supplied details
+addAlbum.addEventListener('click', event => { createAlbum() });
+
+/*
 addAlbum.addEventListener('click', event => {
   console.log("ADD data")
   let artist = artistText.value
@@ -133,7 +200,7 @@ addAlbum.addEventListener('click', event => {
 
   //post to database
   if (checkAlbum) {
-    const response = fetch('http://localhost:3000/albums', {
+    const response = fetch('/albums', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -148,6 +215,6 @@ addAlbum.addEventListener('click', event => {
   else {
   }
 });
-
+*/
 
 showAlbums();
